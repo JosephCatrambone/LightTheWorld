@@ -22,7 +22,7 @@ class MainGameScreen : Screen() {
 			5 4
 			. . . . .
 			. . * . .
-			. * . . .
+			x * x x x
 			. . . . .
 		""".trimIndent())
 		stage.addActor(level)
