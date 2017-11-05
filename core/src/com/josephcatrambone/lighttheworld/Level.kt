@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.Align
 import com.josephcatrambone.lighttheworld.tiles.LightTile
 
 class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
@@ -39,6 +40,10 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 		this.clearChildren()
 		buttons.clear()
 
+		// Don't do any of this in here because it's the parent's responsibility to handle location and such.
+		this.setTransform(true)
+		//this.setOrigin(0.5f, 0.5f)
+		//this.setScale(0.5f)
 		/*
 		// We redefined the checkbox style in skinui.
 		val lightOn: TextureAtlas.AtlasRegion = GDXMain.atlas.findRegion("yellowtile")!!
@@ -65,11 +70,14 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 				TEXT_OFF -> cb.isChecked = false
 				TEXT_DISABLE -> cb.isDisabled = true
 			}
+			cb.setOrigin(Align.center)
+			cb.setTransform(true) // To allow rotate + scale.
 			add(cb)
 			buttons.add(cb)
 
 			cb.addListener(object : ChangeListener() {
 				override fun changed(event: ChangeEvent?, actor: Actor?) {
+					// TODO: We should only report the first screen click, otherwise people can multi-tap to break things.
 					parent.reportClick(actor as LightTile)
 				}
 			})
@@ -88,7 +96,7 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 	private fun reportClick(from:LightTile) {
 		// If pending toggles is NOT empty, this click happened as a result of the program switching stuff.
 		if(pendingToggles.isEmpty()) {
-			// TODO: Disable all button clicks.
+			// Disable this while we're showing the animation.
 			this.touchable = Touchable.disabled
 
 			// Propagate this click to the neighbors.
@@ -133,7 +141,7 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 				}
 			}
 
-			// Now push all the things.
+			// Now push all the toggle events, interpolating each direction.
 			while(upList.isNotEmpty() || downList.isNotEmpty() || rightList.isNotEmpty() || leftList.isNotEmpty()) {
 				if(rightList.isNotEmpty()) { pendingToggles.add(rightList.removeAt(0)) }
 				if(upList.isNotEmpty()) { pendingToggles.add(upList.removeAt(0)) }
@@ -151,6 +159,9 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 		if(pendingToggles.isNotEmpty() && delayToNextToggle <= 0f) {
 			if(!pendingToggles[0].isDisabled) {
 				pendingToggles[0].isChecked = !pendingToggles[0].isChecked // DO THIS FIRST!
+
+				val t = pendingToggles[0]
+				TweenManager.activeTweens.add(Tween(0.3f, floatArrayOf(1.0f, 1.2f, 1.0f), {f -> t.setScale(f)}))
 			}
 			// Pop only AFTER this is completed so we don't hit an endless loop on the last operation.
 			val lightTile = pendingToggles.removeAt(0)
@@ -162,9 +173,22 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 			}
 		}
 		delayToNextToggle -= delta
-		//TweenManager.update(delta)
+		TweenManager.update(delta)
 	}
 
-	// This gets called perpetually to check if stuff has a mousedown happening.
-	//override fun hit(x: Float, y: Float, touchable: Boolean): Actor? {
+	override fun getWidth(): Float {
+		var total = 0f
+		for(i in 0 until this.columns) {
+			total += this.getColumnWidth(i)
+		}
+		return total
+	}
+
+	override fun getHeight(): Float {
+		var total = 0f
+		for(i in 0 until this.rows) {
+			total += this.getRowHeight(i)
+		}
+		return total
+	}
 }
