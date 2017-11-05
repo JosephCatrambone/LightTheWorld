@@ -20,18 +20,17 @@ class MainGameScreen : Screen() {
 		camera.setToOrtho(false)
 		stage = Stage(FitViewport(480f, 800f, camera))
 		level = Level("""
-			5 6
-			x x x x .
+			5 4
 			* * . . .
 			. * . . *
 			x . x x x
 			. . . . .
-			x x x x x
 		""".trimIndent())
 		stage.addActor(level)
 
 		stage.camera.position.set(0f, 0f, 1f)
 		stage.camera.update(true)
+
 		level.setTransform(true)
 		level.setOrigin(Align.center)
 		level.setScale(0.5f)

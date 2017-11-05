@@ -16,14 +16,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.josephcatrambone.lighttheworld.tiles.BlockTile
 import com.josephcatrambone.lighttheworld.tiles.LightTile
+import com.josephcatrambone.lighttheworld.tiles.Tile
 
 class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 	val TEXT_ON = "*"
 	val TEXT_OFF = "."
 	val TEXT_DISABLE = "x"
 
-	val buttons = mutableListOf<LightTile>()
+	val buttons = mutableListOf<Tile>()
 	val tableWidth:Int
 	val tableHeight:Int
 	val delayToggle = 0.01f;
@@ -42,45 +44,26 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 
 		// Don't do any of this in here because it's the parent's responsibility to handle location and such.
 		this.setTransform(true)
-		//this.setOrigin(0.5f, 0.5f)
+		this.setOrigin(0.5f, 0.5f)
 		//this.setScale(0.5f)
-		/*
-		// We redefined the checkbox style in skinui.
-		val lightOn: TextureAtlas.AtlasRegion = GDXMain.atlas.findRegion("yellowtile")!!
-		val lightOff: TextureAtlas.AtlasRegion = GDXMain.atlas.findRegion("darktile")!!
-		val checkboxOff = TextureRegionDrawable(lightOff)
-		val checkboxOn = TextureRegionDrawable(lightOn)
-		//val cbStyle:CheckBox.CheckBoxStyle = CheckBox.CheckBoxStyle()
-		cb.style.checkboxOn = checkboxOn
-		cb.style.checkboxOff = checkboxOff
-		*/
 
 		// Load the map
 		val tokens = mapDescription.split(' ', '\t', '\n')
 		tableWidth = tokens[0].toInt()
 		tableHeight = tokens[1].toInt()
 
-		val parent = this;
 		for(tileId in 0 until tableWidth*tableHeight) {
 			val readOffset = tileId+2; // Two because we have to read those integers above.
 
-			val cb = LightTile(skin)
-			when(tokens[readOffset]) {
-				TEXT_ON -> cb.isChecked = true
-				TEXT_OFF -> cb.isChecked = false
-				TEXT_DISABLE -> cb.isDisabled = true
+			val cb = when(tokens[readOffset]) {
+				TEXT_ON -> LightTile(true)
+				TEXT_OFF -> LightTile(false)
+				TEXT_DISABLE -> BlockTile()
+				else -> Tile()
 			}
 			cb.setOrigin(Align.center)
-			cb.setTransform(true) // To allow rotate + scale.
 			add(cb)
 			buttons.add(cb)
-
-			cb.addListener(object : ChangeListener() {
-				override fun changed(event: ChangeEvent?, actor: Actor?) {
-					// TODO: We should only report the first screen click, otherwise people can multi-tap to break things.
-					parent.reportClick(actor as LightTile)
-				}
-			})
 
 			if((tileId+1)%tableWidth == 0) {
 				row()
@@ -88,14 +71,34 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 		}
 
 		this.layout()
+
+		// Input handling:
+		// Rather than assign a ClickListener to each of the children, we'll just handle the click callback ourselves.
+		val parent = this;
+		this.addListener(object : ClickListener() {
+			override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+				super.touchUp(event, x, y, pointer, button)
+				// X and Y are relative to this object's origin, which I think is lower-left no matter where it is.
+				// Transform X into the percent of the total height, then into the X Grid coord.  Same with Y.
+				val gridX = ((x/parent.width)*tableWidth).toInt()
+				val gridY = (tableHeight-1) - (((y/parent.height)*tableHeight).toInt())
+				if(gridX >= 0 && gridX < tableWidth && gridY >= 0 && gridY < tableHeight) {
+					handleClick(buttons[gridPositionToIndex(gridX, gridY)])
+				}
+			}
+		})
 	}
 
 	private fun indexToGridPosition(index:Int): Pair<Int, Int> = Pair(index%tableWidth, index/tableWidth)
 	private fun gridPositionToIndex(x:Int, y:Int): Int = x + y*tableWidth
 
-	private fun reportClick(from:LightTile) {
+	private fun handleClick(from:Tile) {
 		// If pending toggles is NOT empty, this click happened as a result of the program switching stuff.
 		if(pendingToggles.isEmpty()) {
+			if(from !is LightTile) {
+				return;
+			}
+
 			// Disable this while we're showing the animation.
 			this.touchable = Touchable.disabled
 
@@ -107,41 +110,42 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 			val rightList = mutableListOf<LightTile>()
 			for(x2 in x+1 until tableWidth) {
 				val next = buttons[gridPositionToIndex(x2, y)]
-				if(next.isDisabled) {
-					break
-				} else {
+				if(next is LightTile) {
 					rightList.add(next)
+				} else {
+					break
 				}
 			}
 			val leftList = mutableListOf<LightTile>()
 			for(x2 in x-1 downTo 0) {
 				val next = buttons[gridPositionToIndex(x2, y)]
-				if(next.isDisabled) {
-					break
-				} else {
+				if(next is LightTile) {
 					leftList.add(next)
+				} else {
+					break
 				}
 			}
 			val downList = mutableListOf<LightTile>()
 			for(y2 in y+1 until tableHeight) {
 				val next = buttons[gridPositionToIndex(x, y2)]
-				if(next.isDisabled) {
-					break
-				} else {
+				if(next is LightTile) {
 					downList.add(next)
+				} else {
+					break
 				}
 			}
 			val upList = mutableListOf<LightTile>()
 			for(y2 in y-1 downTo 0) {
 				val next = buttons[gridPositionToIndex(x, y2)]
-				if(next.isDisabled) {
-					break
-				} else {
+				if(next is LightTile) {
 					upList.add(next)
+				} else {
+					break
 				}
 			}
 
 			// Now push all the toggle events, interpolating each direction.
+			pendingToggles.add(from)
 			while(upList.isNotEmpty() || downList.isNotEmpty() || rightList.isNotEmpty() || leftList.isNotEmpty()) {
 				if(rightList.isNotEmpty()) { pendingToggles.add(rightList.removeAt(0)) }
 				if(upList.isNotEmpty()) { pendingToggles.add(upList.removeAt(0)) }
@@ -151,18 +155,16 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 		}
 	}
 
-	fun isComplete():Boolean = buttons.all { b -> (b.isDisabled || b.isChecked) && pendingToggles.isEmpty() }
+	fun isComplete():Boolean = buttons.all { b -> (b is LightTile && b.lit) || b !is LightTile }
 
 	override fun act(delta: Float) {
 		super.act(delta)
 
 		if(pendingToggles.isNotEmpty() && delayToNextToggle <= 0f) {
-			if(!pendingToggles[0].isDisabled) {
-				pendingToggles[0].isChecked = !pendingToggles[0].isChecked // DO THIS FIRST!
+			pendingToggles[0].lit = !pendingToggles[0].lit // DO THIS FIRST!
+			val t = pendingToggles[0]
+			TweenManager.activeTweens.add(Tween(0.3f, floatArrayOf(1.0f, 1.2f, 1.0f), {f -> t.setScale(f)}))
 
-				val t = pendingToggles[0]
-				TweenManager.activeTweens.add(Tween(0.3f, floatArrayOf(1.0f, 1.2f, 1.0f), {f -> t.setScale(f)}))
-			}
 			// Pop only AFTER this is completed so we don't hit an endless loop on the last operation.
 			val lightTile = pendingToggles.removeAt(0)
 			delayToNextToggle = delayToggle

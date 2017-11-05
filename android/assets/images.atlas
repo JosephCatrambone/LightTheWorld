@@ -4,9 +4,30 @@ size: 1024,512
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-darktile
+blocktile
   rotate: false
   xy: 2, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+darktile
+  rotate: false
+  xy: 538, 280
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+darktile_up
+  rotate: false
+  xy: 132, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+notile
+  rotate: false
+  xy: 668, 280
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
@@ -27,7 +48,14 @@ whitetile
   index: -1
 yellowtile
   rotate: false
-  xy: 538, 280
+  xy: 798, 280
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+yellowtile_up
+  rotate: false
+  xy: 538, 150
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
