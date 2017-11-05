@@ -25,6 +25,8 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 	val TEXT_OFF = "."
 	val TEXT_DISABLE = "x"
 
+	var taps:Int = 0
+
 	val buttons = mutableListOf<Tile>()
 	val tableWidth:Int
 	val tableHeight:Int
@@ -98,6 +100,8 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 			if(from !is LightTile) {
 				return;
 			}
+
+			this.taps += 1 // Keep track of this for our top score.  Lower is better.
 
 			// Disable this while we're showing the animation.
 			this.touchable = Touchable.disabled
@@ -175,7 +179,6 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 			}
 		}
 		delayToNextToggle -= delta
-		TweenManager.update(delta)
 	}
 
 	override fun getWidth(): Float {

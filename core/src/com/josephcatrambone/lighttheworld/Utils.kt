@@ -52,14 +52,21 @@ class Tween(val time:Float, val stops:FloatArray, val updateFunction: (Float) ->
 
 class TweenManager {
 	companion object {
+		@JvmStatic
 		val activeTweens = mutableListOf<Tween>()
 
+		@JvmStatic
+		fun add(t:Tween) {
+			TweenManager.activeTweens.add(t)
+		}
+
+		@JvmStatic
 		fun update(dt: Float) {
-			activeTweens.forEach { t:Tween ->
+			TweenManager.activeTweens.forEach { t:Tween ->
 				t.update(dt)
 			}
 
-			activeTweens.removeIf({ it.dead })
+			TweenManager.activeTweens.removeIf({ it.dead })
 		}
 	}
 }

@@ -44,7 +44,9 @@ public class GDXMain extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		screenStack.peek().render();
-		screenStack.peek().update(Gdx.graphics.getDeltaTime());
+		float dt = Gdx.graphics.getDeltaTime();
+		screenStack.peek().update(dt);
+		TweenManager.update(dt);
 	}
 	
 	@Override

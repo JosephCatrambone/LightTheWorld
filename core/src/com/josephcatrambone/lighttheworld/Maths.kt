@@ -319,3 +319,23 @@ class Polygon(val points:List<Vec>) {
 		}
 	}
 }
+
+fun <T> min(vararg values: T): T where T:Comparable<T> {
+	var least = values[0]
+	values.forEach { v ->
+		if(v < least) {
+			least = v
+		}
+	}
+	return least
+}
+
+fun <T> max(vararg values: T): T where T:Comparable<T> {
+	var greatest = values[0]
+	values.forEach { v ->
+		if(v > greatest) {
+			greatest = v
+		}
+	}
+	return greatest
+}
