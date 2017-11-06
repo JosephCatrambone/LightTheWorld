@@ -11,6 +11,9 @@ import com.josephcatrambone.lighttheworld.*
 
 class MainGameScreen : Screen() {
 
+	val LEVEL_TRANSITION_TIME:Float = 1.15f
+	val LEVEL_TRANSITION_DISTANCE:Float = 5f*Gdx.graphics.height
+
 	val levels = listOf<String>("""
 			5 4
 			* * . . .
@@ -61,10 +64,11 @@ class MainGameScreen : Screen() {
 
 		level.setTransform(true)
 		level.setOrigin(Align.center)
-		level.setPosition(-(level.getWidth()/2.0f)*levelScale, -(level.getHeight()/2.0f)*levelScale)
+		val targetY = -(level.getHeight()/2.0f)*levelScale
+		level.setPosition(-(level.getWidth()/2.0f)*levelScale, -LEVEL_TRANSITION_DISTANCE)
 		level.setScale(levelScale)
 
-
+		TweenManager.add(BasicTween(LEVEL_TRANSITION_TIME, -LEVEL_TRANSITION_DISTANCE, targetY, {f -> level.setPosition(level.getX(), f)}))
 	}
 
 	override fun update(deltaTime: Float) {
@@ -78,9 +82,10 @@ class MainGameScreen : Screen() {
 					topScores[currentLevelIndex] = level.taps
 				}
 				// Transition the level by moving it away.
-				TweenManager.activeTweens.add(Tween(10f, floatArrayOf(level.getY(), level.getY() * -100f), { f -> level.setPosition(level.getX(), f) }))
+				TweenManager.activeTweens.add(BasicTween(LEVEL_TRANSITION_TIME, level.getY(), LEVEL_TRANSITION_DISTANCE, { f -> level.setPosition(level.getX(), f) }))
 			} else if(TweenManager.activeTweens.isEmpty()) {
 				// If the tween has finished, load the next level and reset justCompleted.
+				println("Tween done.  Loading next level.")
 				currentLevelIndex++
 				justCompleted = false
 				loadLevel(currentLevelIndex)

@@ -18,7 +18,7 @@ public class GDXMain extends ApplicationAdapter {
 	public static Stack<Screen> screenStack = new Stack<Screen>();
 	//public static AssetManager assetManager; // Maybe we don't want to expose this.
 	public static TextureAtlas atlas;
-	public static Skin skin;
+	//public static Skin skin;
 
 	@Override
 	public void create () {
@@ -32,8 +32,8 @@ public class GDXMain extends ApplicationAdapter {
 		GDXMain.atlas = assetManager.get(ATLAS_NAME, TextureAtlas.class);
 
 		// Load the skin.
-		FileHandle skinHandle = Gdx.files.internal("uiskin.json");
-		GDXMain.skin = new Skin(skinHandle);
+		//FileHandle skinHandle = Gdx.files.internal("uiskin.json");
+		//GDXMain.skin = new Skin(skinHandle);
 
 		screenStack.push(new MainGameScreen());
 		screenStack.peek().restore();
@@ -56,6 +56,6 @@ public class GDXMain extends ApplicationAdapter {
 			s.dispose();
 		}
 		atlas.dispose();
-		skin.dispose();
+		//skin.dispose();
 	}
 }
