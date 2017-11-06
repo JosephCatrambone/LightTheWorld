@@ -20,7 +20,7 @@ import com.josephcatrambone.lighttheworld.tiles.BlockTile
 import com.josephcatrambone.lighttheworld.tiles.LightTile
 import com.josephcatrambone.lighttheworld.tiles.Tile
 
-class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
+class Level(mapDescription: String) : Table() {
 	val TEXT_ON = "*"
 	val TEXT_OFF = "."
 	val TEXT_DISABLE = "x"
@@ -167,7 +167,7 @@ class Level(mapDescription: String, skin:Skin = GDXMain.skin) : Table(skin) {
 		if(pendingToggles.isNotEmpty() && delayToNextToggle <= 0f) {
 			pendingToggles[0].lit = !pendingToggles[0].lit // DO THIS FIRST!
 			val t = pendingToggles[0]
-			TweenManager.activeTweens.add(Tween(0.3f, floatArrayOf(1.0f, 1.2f, 1.0f), {f -> t.setScale(f)}))
+			TweenManager.activeTweens.add(MultiStopTween(0.3f, floatArrayOf(1.0f, 1.2f, 1.0f), { f -> t.setScale(f)}))
 
 			// Pop only AFTER this is completed so we don't hit an endless loop on the last operation.
 			val lightTile = pendingToggles.removeAt(0)

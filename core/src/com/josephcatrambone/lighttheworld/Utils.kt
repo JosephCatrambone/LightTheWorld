@@ -26,14 +26,35 @@ fun <T, R> Iterable<T>.pmap(
 	return ArrayList<R>(destination)
 }
 
-class Tween(val time:Float, val stops:FloatArray, val updateFunction: (Float) -> Unit) {
-	private var accumulator = 0f
-	private val stopSize = time/stops.size.toFloat()
-	val dead:Boolean = accumulator > time
+open class Tween(val time:Float, val updateFunction: (Float) -> Unit) {
+	protected var accumulator = 0f
 
-	fun update(dt:Float) {
+	val dead:Boolean
+		get() = accumulator >= time
+
+	open fun update(dt:Float) {
+		this.accumulator += dt
+	}
+}
+
+class BasicTween(time:Float, val startValue:Float, val stopValue:Float, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
+	override fun update(dt:Float) {
+		super.update(dt)
 		if(!dead) {
-			this.accumulator += dt
+			// Interpolate from 'from' to 'to'.
+			val totalTimeRatio = this.accumulator / time
+			// Calculate the stop in which we find ourselves.
+			updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
+		}
+	}
+}
+
+class MultiStopTween(time:Float, val stops:FloatArray, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
+	private val stopSize = time/stops.size.toFloat()
+
+	override fun update(dt:Float) {
+		super.update(dt)
+		if(!dead) {
 			// Interpolate from 'from' to 'to'.
 			val totalTimeRatio = this.accumulator / time
 			// Calculate the stop in which we find ourselves.
@@ -66,7 +87,11 @@ class TweenManager {
 				t.update(dt)
 			}
 
-			TweenManager.activeTweens.removeIf({ it.dead })
+			TweenManager.activeTweens.removeIf({ t:Tween -> t.dead })
+
+			if(TweenManager.activeTweens.isNotEmpty()) {
+				println("${activeTweens.size} active tweens.")
+			}
 		}
 	}
 }
