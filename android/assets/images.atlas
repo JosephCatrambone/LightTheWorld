@@ -18,16 +18,37 @@ darktile
   orig: 128, 128
   offset: 0, 0
   index: -1
-darktile_up
+notile
   rotate: false
   xy: 132, 2
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-notile
+oneway_down
   rotate: false
   xy: 668, 280
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+oneway_left
+  rotate: false
+  xy: 798, 280
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+oneway_right
+  rotate: false
+  xy: 538, 150
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+oneway_up
+  rotate: false
+  xy: 668, 150
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
@@ -48,14 +69,7 @@ whitetile
   index: -1
 yellowtile
   rotate: false
-  xy: 798, 280
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-yellowtile_up
-  rotate: false
-  xy: 538, 150
+  xy: 798, 150
   size: 128, 128
   orig: 128, 128
   offset: 0, 0

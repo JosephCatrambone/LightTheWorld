@@ -1,29 +1,23 @@
 package com.josephcatrambone.lighttheworld
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.josephcatrambone.lighttheworld.tiles.BlockTile
 import com.josephcatrambone.lighttheworld.tiles.LightTile
+import com.josephcatrambone.lighttheworld.tiles.OneWayTile
 import com.josephcatrambone.lighttheworld.tiles.Tile
 
 class Level(mapDescription: String) : Table() {
 	val TEXT_ON = "*"
 	val TEXT_OFF = "."
 	val TEXT_DISABLE = "x"
+	val TEXT_ONEWAY_RIGHT = ">"
+	val TEXT_ONEWAY_UP = "^"
+	val TEXT_ONEWAY_LEFT = "<"
+	val TEXT_ONEWAY_DOWN = "v"
 
 	var taps:Int = 0
 
@@ -61,6 +55,10 @@ class Level(mapDescription: String) : Table() {
 				TEXT_ON -> LightTile(true)
 				TEXT_OFF -> LightTile(false)
 				TEXT_DISABLE -> BlockTile()
+				TEXT_ONEWAY_RIGHT -> OneWayTile(OneWayTile.Direction.RIGHT)
+				TEXT_ONEWAY_UP -> OneWayTile(OneWayTile.Direction.UP)
+				TEXT_ONEWAY_LEFT -> OneWayTile(OneWayTile.Direction.LEFT)
+				TEXT_ONEWAY_DOWN -> OneWayTile(OneWayTile.Direction.DOWN)
 				else -> Tile()
 			}
 			cb.setOrigin(Align.center)
@@ -116,6 +114,8 @@ class Level(mapDescription: String) : Table() {
 				val next = buttons[gridPositionToIndex(x2, y)]
 				if(next is LightTile) {
 					rightList.add(next)
+				} else if(next is OneWayTile && next.direction == OneWayTile.Direction.RIGHT) {
+					// Pass, but don't break.
 				} else {
 					break
 				}
@@ -125,6 +125,8 @@ class Level(mapDescription: String) : Table() {
 				val next = buttons[gridPositionToIndex(x2, y)]
 				if(next is LightTile) {
 					leftList.add(next)
+				} else if(next is OneWayTile && next.direction == OneWayTile.Direction.LEFT) {
+					// Pass, but don't break.
 				} else {
 					break
 				}
@@ -134,6 +136,8 @@ class Level(mapDescription: String) : Table() {
 				val next = buttons[gridPositionToIndex(x, y2)]
 				if(next is LightTile) {
 					downList.add(next)
+				} else if(next is OneWayTile && next.direction == OneWayTile.Direction.DOWN) {
+					// Pass, but don't break.
 				} else {
 					break
 				}
@@ -143,6 +147,8 @@ class Level(mapDescription: String) : Table() {
 				val next = buttons[gridPositionToIndex(x, y2)]
 				if(next is LightTile) {
 					upList.add(next)
+				} else if(next is OneWayTile && next.direction == OneWayTile.Direction.UP) {
+					// Pass, but don't break.
 				} else {
 					break
 				}
@@ -159,7 +165,7 @@ class Level(mapDescription: String) : Table() {
 		}
 	}
 
-	fun isComplete():Boolean = buttons.all { b -> (b is LightTile && b.lit) || b !is LightTile }
+	fun isComplete():Boolean = buttons.all { b -> (b is LightTile && b.lit) || b !is LightTile } && TweenManager.activeTweens.isEmpty()
 
 	override fun act(delta: Float) {
 		super.act(delta)

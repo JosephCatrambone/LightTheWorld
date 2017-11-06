@@ -12,6 +12,13 @@ import com.josephcatrambone.lighttheworld.screens.Screen;
 
 import java.util.Stack;
 
+/**
+ * TODO:
+ * 1. Load level + handle tile propagation.
+ * 2. Level transitions.
+ * 3. Tile variety and high score display.
+ * 4. UI: Restart level button, 'go back' button for level select.
+ */
 public class GDXMain extends ApplicationAdapter {
 	public static final String ATLAS_NAME = "images.atlas";
 

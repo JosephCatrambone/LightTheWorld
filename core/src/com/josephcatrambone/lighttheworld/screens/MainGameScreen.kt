@@ -12,9 +12,20 @@ import com.josephcatrambone.lighttheworld.*
 class MainGameScreen : Screen() {
 
 	val LEVEL_TRANSITION_TIME:Float = 1.15f
-	val LEVEL_TRANSITION_DISTANCE:Float = 5f*Gdx.graphics.height
+	val LEVEL_TRANSITION_DISTANCE:Float = 2f*Gdx.graphics.height
+	val LEVEL_TRANSITION_EASE_IN = 0.6f
+	val LEVEL_TRANSITION_EASE_OUT = 1.5f
 
-	val levels = listOf<String>("""
+	val levels = listOf<String>(
+		"""
+			5 5
+			x x . x x
+			x x . x x
+			. . . . .
+			x x . x x
+			x x . x x
+		""".trimIndent(),
+		"""
 			5 4
 			* * . . .
 			. * . . *
@@ -22,17 +33,28 @@ class MainGameScreen : Screen() {
 			. . . . .
 		""".trimIndent(),
 		"""
-			5 5
-			* * . . .
-			. * . . *
+			5 3
+			x x x x x
+			. . > . .
+			x x x x x
+		""".trimIndent(),
+		"""
+			5 3
+			x . . . x
+			. . > . .
 			x . x x x
-			. . . . .
+		""".trimIndent(),
+			"""
+			5 4
+			x . . . x
+			. . < . .
+			x ^ . . x
 			x . x x x
 		""".trimIndent()
-	)
+		)
 
-	val topScores = mutableListOf<Int>(4, 4)
-	var currentLevelIndex = 0
+	val topScores:MutableList<Int> = MutableList<Int>(levels.size, {_ -> Int.MAX_VALUE})
+	var currentLevelIndex = 4
 	var justCompleted = false
 	var stage: Stage
 	lateinit var level: Level
@@ -44,7 +66,7 @@ class MainGameScreen : Screen() {
 		stage.camera.position.set(0f, 0f, 1f)
 		stage.camera.update(true)
 
-		loadLevel(0)
+		loadLevel(currentLevelIndex)
 	}
 
 	fun loadLevel(index:Int) {
@@ -68,7 +90,7 @@ class MainGameScreen : Screen() {
 		level.setPosition(-(level.getWidth()/2.0f)*levelScale, -LEVEL_TRANSITION_DISTANCE)
 		level.setScale(levelScale)
 
-		TweenManager.add(BasicTween(LEVEL_TRANSITION_TIME, -LEVEL_TRANSITION_DISTANCE, targetY, {f -> level.setPosition(level.getX(), f)}))
+		TweenManager.add(EaseTween(LEVEL_TRANSITION_TIME, -LEVEL_TRANSITION_DISTANCE, targetY, LEVEL_TRANSITION_EASE_IN, {f -> level.setPosition(level.getX(), f)}))
 	}
 
 	override fun update(deltaTime: Float) {
@@ -82,7 +104,7 @@ class MainGameScreen : Screen() {
 					topScores[currentLevelIndex] = level.taps
 				}
 				// Transition the level by moving it away.
-				TweenManager.activeTweens.add(BasicTween(LEVEL_TRANSITION_TIME, level.getY(), LEVEL_TRANSITION_DISTANCE, { f -> level.setPosition(level.getX(), f) }))
+				TweenManager.activeTweens.add(EaseTween(LEVEL_TRANSITION_TIME, level.getY(), LEVEL_TRANSITION_DISTANCE, LEVEL_TRANSITION_EASE_OUT, { f -> level.setPosition(level.getX(), f) }))
 			} else if(TweenManager.activeTweens.isEmpty()) {
 				// If the tween has finished, load the next level and reset justCompleted.
 				println("Tween done.  Loading next level.")

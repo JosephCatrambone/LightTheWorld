@@ -4,10 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Batch
 //import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.josephcatrambone.lighttheworld.GDXMain
-import com.josephcatrambone.lighttheworld.Image
-
-open class Tile : Image(TextureRegionDrawable(GDXMain.atlas.findRegion("notile"))) {
-}
 
 class LightTile(var lit:Boolean = false) : Tile() {
 	val activeImage: TextureRegionDrawable = TextureRegionDrawable(GDXMain.atlas.findRegion("yellowtile"))
@@ -28,11 +24,5 @@ class LightTile(var lit:Boolean = false) : Tile() {
 		} else {
 			inactiveImage
 		}
-	}
-}
-
-class BlockTile : Tile() {
-	init {
-		this.drawable = TextureRegionDrawable(GDXMain.atlas.findRegion("blocktile"))
 	}
 }

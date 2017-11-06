@@ -49,6 +49,21 @@ class BasicTween(time:Float, val startValue:Float, val stopValue:Float, updateFu
 	}
 }
 
+/*** EaseTween
+ * @param ease The exponent for the time function.  Less than one introduces ease out.  Greater than one is ease in.
+ */
+class EaseTween(time:Float, val startValue:Float, val stopValue:Float, val ease:Float, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
+	override fun update(dt: Float) {
+		super.update(dt)
+		if(!dead) {
+			// Interpolate from 'from' to 'to'.
+			val totalTimeRatio = Math.pow((this.accumulator / time).toDouble(), ease.toDouble()).toFloat()
+			// Calculate the stop in which we find ourselves.
+			updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
+		}
+	}
+}
+
 class MultiStopTween(time:Float, val stops:FloatArray, updateFunction: (Float) -> Unit) : Tween(time, updateFunction) {
 	private val stopSize = time/stops.size.toFloat()
 
