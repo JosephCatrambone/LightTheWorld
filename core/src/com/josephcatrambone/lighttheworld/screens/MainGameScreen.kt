@@ -54,7 +54,7 @@ class MainGameScreen : Screen() {
 		)
 
 	val topScores:MutableList<Int> = MutableList<Int>(levels.size, {_ -> Int.MAX_VALUE})
-	var currentLevelIndex = 4
+	var currentLevelIndex = 0
 	var justCompleted = false
 	var stage: Stage
 	lateinit var level: Level
