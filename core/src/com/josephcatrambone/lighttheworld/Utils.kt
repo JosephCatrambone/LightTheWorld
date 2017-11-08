@@ -29,7 +29,7 @@ fun <T, R> Iterable<T>.pmap(
 open class Tween(val time:Float, val updateFunction: (Float) -> Unit) {
 	protected var accumulator = 0f
 
-	val dead:Boolean
+	open val dead:Boolean
 		get() = accumulator >= time
 
 	open fun update(dt:Float) {
@@ -45,6 +45,25 @@ class BasicTween(time:Float, val startValue:Float, val stopValue:Float, updateFu
 			val totalTimeRatio = this.accumulator / time
 			// Calculate the stop in which we find ourselves.
 			updateFunction(totalTimeRatio*stopValue + (1.0f-totalTimeRatio)*startValue)
+		}
+	}
+}
+
+class SequentialTween(vararg tweens:Tween): Tween(tweens.fold(0f, {acc, t -> acc + t.time}), { f -> Unit }) {
+	val pendingTweens:MutableList<Tween> = mutableListOf(*tweens)
+
+	override val dead:Boolean
+		get() = this.pendingTweens.isEmpty()
+
+	override fun update(dt: Float) {
+		super.update(dt)
+		// If we're not dead...
+		if(pendingTweens.size > 0) {
+			// First, update the time on this item.
+			pendingTweens[0].update(dt)
+			if(pendingTweens[0].dead) {
+				pendingTweens.removeAt(0)
+			}
 		}
 	}
 }

@@ -1,10 +1,13 @@
 package com.josephcatrambone.lighttheworld.screens
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.josephcatrambone.lighttheworld.*
@@ -58,6 +61,9 @@ class MainGameScreen : Screen() {
 	var justCompleted = false
 	var stage: Stage
 	lateinit var level: Level
+	val tapLabel: Label = Label("Taps: ", GDXMain.skin)
+	val bestLabel: Label = Label("Best: ", GDXMain.skin)
+	val parLabel: Label = Label("Par: ", GDXMain.skin)
 
 	init {
 		val camera = OrthographicCamera(480f, 800f)
@@ -66,17 +72,62 @@ class MainGameScreen : Screen() {
 		stage.camera.position.set(0f, 0f, 1f)
 		stage.camera.update(true)
 
+		// Position the labels and set their properties.
+		tapLabel.style.fontColor = Color.WHITE
+		bestLabel.style.fontColor = Color.WHITE
+		parLabel.style.fontColor = Color.WHITE
+		tapLabel.setAlignment(Align.center, Align.center)
+		bestLabel.setAlignment(Align.center, Align.center)
+		parLabel.setAlignment(Align.center, Align.center)
+		tapLabel.setPosition(0f, stage.camera.viewportHeight*0.5f - 50f)
+		bestLabel.setPosition(0f, stage.camera.viewportHeight*-0.5f + 50f)
+		parLabel.setPosition(0f, 0f) // Center.
+		tapLabel.touchable = Touchable.disabled
+		bestLabel.touchable = Touchable.disabled
+		parLabel.touchable = Touchable.disabled
+
+		parLabel.isVisible = false
+		// tap and best as invisible and have them fade in.
+		// par, since it blocks input, has to fade in and fade out, then be cleared.
+		/*
+		TweenManager.add(
+			SequentialTween(
+				BasicTween(1.0f, 0.0f, 1.0f, { f -> parLabel.setText()})
+			)
+		)
+		*/
+
 		loadLevel(currentLevelIndex)
 	}
 
 	fun loadLevel(index:Int) {
 		// Delete old level if it's present.
-		stage.actors.forEach { a -> a.clear() }
-		stage.actors.clear()
+		stage.clear()
+		// DO NOT DO THIS:
+		//stage.actors.forEach { a -> a.clear() }
+		//stage.actors.clear()
 
 		// Load the new level.
 		level = Level(levels[index])
 		stage.addActor(level)
+
+		// This will be part of the overlay shown at the start.
+		// Add them after the level so they're drawn on top.
+		stage.addActor(tapLabel)
+		stage.addActor(bestLabel)
+		stage.addActor(parLabel)
+		// Update the best and reset current taps.
+		tapLabel.setText("Taps: 0")
+		bestLabel.setText(
+			if(topScores[index] == Int.MAX_VALUE) {
+				"Best: --"
+			} else {
+				"Best: ${topScores[index]}"
+			}
+		)
+		// Then fade in
+		TweenManager.add(BasicTween(2.0f, 0.0f, 1.0f, { f -> tapLabel.style.fontColor = Color(1.0f, 1.0f, 1.0f, f)}))
+		TweenManager.add(BasicTween(2.0f, 0.0f, 1.0f, { f -> bestLabel.style.fontColor = Color(1.0f, 1.0f, 1.0f, f)}))
 
 		// TODO: VERY IMPORTANT.  level.width != level.getWidth().  Can't seem to override the width property.
 		// level.width returns 0 but level.getWidth() returns the right value.
@@ -95,6 +146,10 @@ class MainGameScreen : Screen() {
 
 	override fun update(deltaTime: Float) {
 		stage.act(deltaTime)
+		// Update the tap count.
+		tapLabel.setText("Taps: ${level.taps}")
+
+		// See if the level is complete.
 		if(level.isComplete()) {
 			if(!justCompleted) {
 				justCompleted = true
@@ -105,6 +160,10 @@ class MainGameScreen : Screen() {
 				}
 				// Transition the level by moving it away.
 				TweenManager.activeTweens.add(EaseTween(LEVEL_TRANSITION_TIME, level.getY(), LEVEL_TRANSITION_DISTANCE, LEVEL_TRANSITION_EASE_OUT, { f -> level.setPosition(level.getX(), f) }))
+
+				// And fade out our labels.
+				TweenManager.add(BasicTween(LEVEL_TRANSITION_TIME, 1.0f, 0.0f, { f -> tapLabel.style.fontColor = Color(1.0f, 1.0f, 1.0f, f)}))
+				TweenManager.add(BasicTween(LEVEL_TRANSITION_TIME, 1.0f, 0.0f, { f -> bestLabel.style.fontColor = Color(1.0f, 1.0f, 1.0f, f)}))
 			} else if(TweenManager.activeTweens.isEmpty()) {
 				// If the tween has finished, load the next level and reset justCompleted.
 				println("Tween done.  Loading next level.")
