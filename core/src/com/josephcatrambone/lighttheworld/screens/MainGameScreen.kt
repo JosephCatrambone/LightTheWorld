@@ -60,6 +60,7 @@ class MainGameScreen : Screen() {
 	var currentLevelIndex = 0
 	var justCompleted = false
 	var stage: Stage
+	val background = Background(Vec(35.1f, 10.2f))
 	lateinit var level: Level
 	val tapLabel: Label = Label("Taps: ", GDXMain.skin)
 	val bestLabel: Label = Label("Best: ", GDXMain.skin)
@@ -106,6 +107,9 @@ class MainGameScreen : Screen() {
 		// DO NOT DO THIS:
 		//stage.actors.forEach { a -> a.clear() }
 		//stage.actors.clear()
+
+		// Background first.
+		stage.addActor(background)
 
 		// Load the new level.
 		level = Level(levels[index])

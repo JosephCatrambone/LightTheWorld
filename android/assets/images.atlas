@@ -11,44 +11,58 @@ blocktile
   orig: 128, 128
   offset: 0, 0
   index: -1
-darktile
+cloud_bg
   rotate: false
   xy: 538, 280
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-notile
+darktile
   rotate: false
   xy: 132, 2
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-oneway_down
+darktile_up
   rotate: false
   xy: 668, 280
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-oneway_left
+notile
   rotate: false
   xy: 798, 280
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-oneway_right
+oneway_down
   rotate: false
   xy: 538, 150
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-oneway_up
+oneway_left
   rotate: false
   xy: 668, 150
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+oneway_right
+  rotate: false
+  xy: 798, 150
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+oneway_up
+  rotate: false
+  xy: 280, 22
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
@@ -69,7 +83,14 @@ whitetile
   index: -1
 yellowtile
   rotate: false
-  xy: 798, 150
+  xy: 410, 20
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+yellowtile_up
+  rotate: false
+  xy: 540, 20
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
