@@ -173,6 +173,11 @@ class MainGameScreen : Screen() {
 				println("Tween done.  Loading next level.")
 				currentLevelIndex++
 				justCompleted = false
+				if(currentLevelIndex >= levels.size) {
+					// Out of levels.
+					println("TODO: New levels.")
+					currentLevelIndex = 0
+				}
 				loadLevel(currentLevelIndex)
 			}
 		}

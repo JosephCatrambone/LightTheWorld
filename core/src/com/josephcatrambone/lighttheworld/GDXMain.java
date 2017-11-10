@@ -2,11 +2,13 @@ package com.josephcatrambone.lighttheworld;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.josephcatrambone.lighttheworld.screens.LevelSelectScreen;
 import com.josephcatrambone.lighttheworld.screens.MainGameScreen;
 import com.josephcatrambone.lighttheworld.screens.Screen;
 
@@ -42,6 +44,10 @@ public class GDXMain extends ApplicationAdapter {
 		FileHandle skinHandle = Gdx.files.internal("uiskin.json");
 		GDXMain.skin = new Skin(skinHandle);
 
+		// Catch the back key on Android.
+		Gdx.input.setCatchBackKey(true);
+
+		screenStack.push(new LevelSelectScreen());
 		screenStack.push(new MainGameScreen());
 		screenStack.peek().restore();
 	}
@@ -50,10 +56,26 @@ public class GDXMain extends ApplicationAdapter {
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		// Render
 		screenStack.peek().render();
+
+		// Update everything
 		float dt = Gdx.graphics.getDeltaTime();
 		screenStack.peek().update(dt);
 		TweenManager.update(dt);
+
+		// Check to see if 'back' was pressed.
+		if(Gdx.input.isKeyJustPressed(Input.Keys.BACK) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			Screen s = screenStack.pop();
+			s.dispose();
+			if(screenStack.isEmpty()) {
+				//System.exit(0);
+				Gdx.app.exit();
+			} else {
+				screenStack.peek().restore(); // Now you're on top.
+			}
+		}
 	}
 	
 	@Override
