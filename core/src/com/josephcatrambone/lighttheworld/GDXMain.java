@@ -8,6 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.josephcatrambone.lighttheworld.screens.IntroScreen;
 import com.josephcatrambone.lighttheworld.screens.LevelSelectScreen;
 import com.josephcatrambone.lighttheworld.screens.MainGameScreen;
 import com.josephcatrambone.lighttheworld.screens.Screen;
@@ -47,8 +48,7 @@ public class GDXMain extends ApplicationAdapter {
 		// Catch the back key on Android.
 		Gdx.input.setCatchBackKey(true);
 
-		screenStack.push(new LevelSelectScreen());
-		screenStack.push(new MainGameScreen());
+		screenStack.push(new IntroScreen()); // This will push the other screens.
 		screenStack.peek().restore();
 	}
 

@@ -105,27 +105,20 @@ class MultiStopTween(time:Float, val stops:FloatArray, updateFunction: (Float) -
 	}
 }
 
-class TweenManager {
-	companion object {
-		@JvmStatic
-		val activeTweens = mutableListOf<Tween>()
+object TweenManager {
+	val activeTweens = mutableListOf<Tween>()
 
-		@JvmStatic
-		fun add(t:Tween) {
-			TweenManager.activeTweens.add(t)
+	@JvmStatic
+	fun add(t:Tween) {
+		TweenManager.activeTweens.add(t)
+	}
+
+	@JvmStatic
+	fun update(dt: Float) {
+		TweenManager.activeTweens.forEach { t:Tween ->
+			t.update(dt)
 		}
 
-		@JvmStatic
-		fun update(dt: Float) {
-			TweenManager.activeTweens.forEach { t:Tween ->
-				t.update(dt)
-			}
-
-			TweenManager.activeTweens.removeIf({ t:Tween -> t.dead })
-
-			if(TweenManager.activeTweens.isNotEmpty()) {
-				println("${activeTweens.size} active tweens.")
-			}
-		}
+		TweenManager.activeTweens.removeIf({ t:Tween -> t.dead })
 	}
 }
